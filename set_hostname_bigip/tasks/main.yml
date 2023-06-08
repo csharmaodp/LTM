@@ -1,0 +1,30 @@
+---
+#Tasks file
+- name: Set the hostname of the BIG-IP
+  bigip_hostname:
+    hostname: "{{ hostname_to_set }}"
+    provider:
+      server: '{{F5_HOSTNAME}}'
+      password: '{{F5_PASSWORD}}'
+      user: '{{F5_USER}}'
+      validate_certs: no
+  delegate_to: localhost
+  register: output
+  ignore_errors: true
+
+- name: BIG-IP hostname result
+  debug:
+    var: output
+
+- set_fact:
+    response_message: "BIG-IP hostname set Successfully {{ output }}"
+  when: output is succeeded
+
+- set_fact:
+    status_code: 2
+    response_message: "BIG-IP hostname set failed {{ output.msg }}"
+  when: output is failed
+
+- debug:
+    var=response_message
+  when: response_message is defined

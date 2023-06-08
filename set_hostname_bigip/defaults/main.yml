@@ -1,0 +1,5 @@
+---
+# vars file
+server: "{{ F5_HOSTNAME }}"
+user: "{{ F5_USER }}"
+password: "{{ F5_PASSWORD }}"
