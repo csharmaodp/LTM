@@ -1,0 +1,22 @@
+---
+- name: 'Assert that required vars are defined'
+  ansible.builtin.assert:
+    that:
+      - query_vip_role_server is defined
+      - query_vip_role_partition is defined
+    fail_msg: 'one or more required variables are undefined'
+
+- name: 'Get VIPs details from F5'
+  f5networks.f5_modules.bigip_device_info:
+    provider: "{{ query_vip_role_provider }}"
+    gather_subset:
+      - 'virtual-servers'
+    partition: "{{ query_vip_role_partition }}"
+  register: __vip_results
+  delegate_to: localhost
+
+# This will collect only virtual servers ends with '-VIP'
+- name: 'Setfact virtual_servers'
+  ansible.builtin.set_fact:
+    query_vip_role_virtual_servers: "{{ __vip_results['ansible_facts']['ansible_net_virtual_servers'] | selectattr('name','defined') | selectattr('name','search','-VIP$') | map(attribute='name') | list }}"
+...
