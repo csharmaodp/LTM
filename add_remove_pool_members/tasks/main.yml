@@ -1,0 +1,20 @@
+- name: 'Checking for required user input'
+  ansible.builtin.assert:
+    that:
+      - manage_pool_members_role_partition is defined
+      - manage_pool_members_role_state is defined
+
+- name: 'Add/Remove List of Members to F5 Pool'
+  f5networks.f5_modules.bigip_pool_member:
+    state: "{{ manage_pool_members_role_state }}"
+    pool: "{{ manage_pool_members_role_pool_name }}"
+    partition: "{{ manage_pool_members_role_partition }}"
+    host: "{{ manage_pool_members_role_node['ip_address'] }}"
+    port: "{{ manage_pool_members_role_pool_port }}"
+    description: "{{ manage_pool_members_role_description }}"
+    provider: "{{ manage_pool_members_role_provider }}"
+    name: "{{ manage_pool_members_role_node['hostname'] | upper }}"
+    preserve_node: true
+  loop: "{{ manage_pool_members_role_pool_members }}"
+  loop_control:
+    loop_var: manage_pool_members_role_node

@@ -1,0 +1,27 @@
+- name: 'Query pools in F5'
+  f5networks.f5_modules.bigip_device_info:
+    provider: "{{ query_pools_role_provider }}"
+    gather_subset:
+      - 'ltm-pools'
+    partition: "{{ query_pools_role_partition }}"
+  delegate_to: localhost
+  register: __pool_details_results
+
+- name: 'Set query pool details'
+  ansible.builtin.set_fact:
+    query_pools_role_pools_details: "{{ (query_pools_role_pools_details | default([]) + [{'name': __pool_name, 'members': __pool_member_names, 'addresses': __pool_member_addresses}]) if not (__pool_name | regex_search('^ssloS_SERVICES*')) else (query_pools_role_pools_details | default([])) }}"
+  loop: "{{ __pool_details_results['ansible_facts']['ansible_net_ltm_pools'] }}"
+  loop_control:
+    loop_var: __pool_details
+  vars:
+    __pool_name: "{{ __pool_details['name'] }}"
+    __pool_member_details: "{{ __pool_details['members'] | default([]) }}"
+    __pool_member_names: "{{ (__pool_member_details | selectattr('name', 'defined') | map(attribute='name') | list) | default(None) }}"
+    __pool_member_addresses: "{{ (__pool_member_details | selectattr('address', 'defined') | map(attribute='address') | list) | default(None) }}"
+
+- name: 'Set query pool details'
+  ansible.builtin.set_fact:
+    query_pools_role_pools_details: []
+  when:
+    - ( __pool_details_results['ansible_facts']['ansible_net_ltm_pools'] is not defined ) or ( __pool_details_results['ansible_facts']['ansible_net_ltm_pools'] | length == 0 )
+...
