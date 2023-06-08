@@ -1,0 +1,43 @@
+---
+# tasks file for F5_Force_Pool_Member_Offline
+  - name: check connectivity
+    shell: ping -c 1 -w 2 "{{ip}}"
+    register: out1
+    ignore_errors: yes
+
+  - set_fact:
+      response_message: "Target server unreachable{{out1.msg}}"
+      status_code: -1
+    when: out1 is failed
+
+  - name: block to execute  when target server is reachable
+    when: status_code is not defined
+    block:
+    - name: Force pool member offline
+      bigip_pool_member:
+        state: forced_offline
+        pool: "{{ pool_name }}"
+        partition: "{{ partition }}"
+        name: "{{ pool_member_name }}"
+        host: "{{ address }}"
+        port: "{{ port }}"
+        provider:
+          server: "{{ F5_HOSTNAME }}"
+          user: "{{ F5_USER }}"
+          password: "{{ F5_PASSWORD }}"
+          validate_certs: no
+      delegate_to: localhost
+      register: output
+    - debug: var=output
+
+    - set_fact:
+        response_message: "Pool Member is offline  successfully {{ output }}"
+      when: output is succeeded
+
+    - set_fact:
+        status_code: 2
+        response_message: "Failed to make Pool member offline {{ output.msg }}"
+      when: output is failed
+
+    - debug: var=response_message
+      when: response_message is defined

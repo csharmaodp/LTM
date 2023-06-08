@@ -1,0 +1,5 @@
+---
+- hosts: localhost
+  remote_user: root
+  roles:
+    - /var/lib/Dryice/Ansible_Repository/Network/F5/F5_Force_Pool_Member_Offline

@@ -1,0 +1,7 @@
+---
+# vars file for F5_Delete_Node
+node_name: app_node1
+node_host: 10.20.30.40
+server: "{{ F5_HOSTNAME }}"
+user: "{{ F5_USER }}"
+password: "{{ F5_PASSWORD }}"

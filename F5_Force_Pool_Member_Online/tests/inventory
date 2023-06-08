@@ -1,0 +1,9 @@
+[lbserver:vars]
+ansible_connection=ssh
+ansible_user=admin
+ansible_ssh_pass=default@123
+
+ 
+
+[lbserver]
+inprmf5lb01.dryicelabs.com

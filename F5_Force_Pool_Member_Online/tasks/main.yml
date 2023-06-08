@@ -1,0 +1,18 @@
+---
+# tasks file for F5_Force_Pool_Member_online
+    - name: Force pool member online
+      bigip_pool_member:
+        state: 'enabled'
+        pool: "{{ pool_name }}"
+        partition: "{{ partition }}"
+        name: "{{ pool_member_name }}"
+        host: "{{ address }}"
+        port: "{{ port }}"
+        provider:
+          server: "{{ F5_HOSTNAME }}"
+          user: "{{ F5_USER }}"
+          password: "{{ F5_PASSWORD }}"
+          validate_certs: no
+      delegate_to: localhost
+
+  
