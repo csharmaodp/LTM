@@ -11,7 +11,6 @@
     partition: "{{ manage_pool_members_role_partition }}"
     host: "{{ manage_pool_members_role_node['ip_address'] }}"
     port: "{{ manage_pool_members_role_pool_port }}"
-    description: "{{ manage_pool_members_role_description }}"
     provider: "{{ manage_pool_members_role_provider }}"
     name: "{{ manage_pool_members_role_node['hostname'] | upper }}"
     preserve_node: true
