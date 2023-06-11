@@ -1,9 +1,3 @@
-- name: 'Checking for required user input'
-  ansible.builtin.assert:
-    that:
-      - manage_pool_members_role_partition is defined
-      - manage_pool_members_role_state is defined
-
 - name: 'Add/Remove List of Members to F5 Pool'
   f5networks.f5_modules.bigip_pool_member:
     state: "{{ manage_pool_members_role_state }}"
