@@ -3,7 +3,7 @@
   gather_facts: true
   vars: 
     headers: name,members, ,addresses
-    csv_data: /home/ec2-user/Ansible-test/pooldata1.csv
+    csv_data: /home/ec2-user/Ansible-test/pooldata3.csv
 
   tasks: 
     - name: 'getting the data from json'
