@@ -3,11 +3,6 @@
   hosts: localhost
   become: true
   gather_facts: true
-
-  vars:
-    provider:
-
-    
   tasks:
     - name: 'Get VIPs details from F5'
       f5networks.f5_modules.bigip_device_info:
