@@ -18,4 +18,4 @@
 
     - name: 'Debug the data'
       debug:
-        var: __vip_results
+        var: __vip_results 
