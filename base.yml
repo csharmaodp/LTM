@@ -1,0 +1,14 @@
+---
+- name: Take F5 backup
+  bigip_command:
+    commands:
+      - "save /sys ucs {{ backup_filename }}"
+  delegate_to: localhost
+  register: backup_result
+  vars:
+    backup_filename: "/path/to/backup/{{ inventory_hostname }}_backup.ucs"
+
+- name: Verify backup success
+  debug:
+    msg: "Backup was successful"
+  when: backup_result is success

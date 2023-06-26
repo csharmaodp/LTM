@@ -1,0 +1,18 @@
+- hosts: localhost
+  gather_false: true
+  become: true
+  tasks:
+  - name: Modify pool member ratio and description
+    bigip_pool_member:
+      pool: my-pool
+      partition: Common
+      name: my-member
+      host: "{{ ansible_default_ipv4['address'] }}"
+      port: 80
+      ratio: 1
+      description: nginx server
+      provider:
+        server: lb.mydomain.com
+        user: admin
+        password: secret
+    delegate_to: localhost

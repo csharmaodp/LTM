@@ -1,0 +1,44 @@
+- hosts: localhost
+  become: true
+  gather_facts: true
+  vars: 
+    headers: name,members, ,addresses
+    csv_data: /home/ec2-user/Ansible-test/pooldata3.csv
+
+  tasks: 
+    - name: 'getting the data from json'
+      set_fact: 
+        __pool_details: "{{ lookup('file', '/home/ec2-user/Ansible-test/json', errors='ignore') }}"
+
+    - name: 'Set query pool details'
+      ansible.builtin.set_fact:
+        query_pools_role_pools_details: "{{ (query_pools_role_pools_details | default([]) + [{'name': __pool_name, 'members': __pool_member_names, 'addresses': __pool_member_addresses}]) if not (__pool_name | regex_search('^ssloS_SERVICES*')) else (query_pools_role_pools_details | default([])) }}"
+      loop: "{{ __pool_details['ansible_facts']['ansible_net_ltm_pools'] }}"
+      loop_control:
+        loop_var: __pool_details
+      vars:
+        __pool_name: "{{ __pool_details['name'] }}"
+        __pool_member_details: "{{ __pool_details['members'] | default([]) }}"
+        __pool_member_names: "{{ (__pool_member_details | selectattr('name', 'defined') | map(attribute='name') | list) | default(None) }}"
+        __pool_member_addresses: "{{ (__pool_member_details | selectattr('address', 'defined') | map(attribute='address') | flatten ) | default(None) }}"
+
+    - name: 'debug'
+      debug:
+        var: query_pools_role_pools_details
+
+    - name: create the csv file
+      ansible.builtin.lineinfile:
+        dest: /home/ec2-user/Ansible-test/pooldata3.csv
+        line: "{{ headers }}"
+        create: true
+        state: present
+
+    - name: Build out CSV file
+      ansible.builtin.lineinfile:
+        dest: /home/ec2-user/Ansible-test/pooldata3.csv
+        # line: "{{ item.split( ':' ) | replace('[','') | replace(']','') | replace(\"'\", '') }}"
+        line: "{{ item.name }}, {{ item.members | join(',') }}, {{ item.addresses | join(',') }}"
+        create: true
+        state: present
+      loop: "{{ query_pools_role_pools_details }}"
+      delegate_to: localhost

@@ -1,0 +1,32 @@
+- hosts: localhost
+  gather_false: true
+  become: true
+  tasks:
+    - name: Create members with priority groups
+      bigip_pool_member:
+        pool: my-pool
+        partition: Common
+        host: "{{ item.address }}"
+        name: "{{ item.name }}"
+        priority_group: "{{ item.priority_group }}"
+        port: 80
+        provider:
+          server: lb.mydomain.com
+          user: admin
+          password: secret
+      delegate_to: localhost
+      loop:
+        - address: 1.1.1.1
+          name: web1
+          priority_group: 4
+        - address: 2.2.2.2
+          name: web2
+          priority_group: 3
+        - address: 3.3.3.3
+          name: web3
+          priority_group: 2
+        - address: 4.4.4.4
+          name: web4
+          priority_group: 1
+        
+      

@@ -1,0 +1,21 @@
+---
+- name: 'query the virutual servers'
+  hosts: localhost
+  become: true
+  gather_facts: true
+  tasks:
+    - name: 'Get VIPs details from F5'
+      f5networks.f5_modules.bigip_device_info:
+        provider:
+          server: lb.mydomain.com
+          user: admin
+          password: secret
+        gather_subset:
+          - 'virtual-servers'
+        partition: 'common'
+      register: __vip_results
+      delegate_to: localhost
+
+    - name: 'Debug the data'
+      debug:
+        var: __vip_results 
