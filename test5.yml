@@ -1,0 +1,21 @@
+---
+- name: Copy SAR files from multiple servers to NFS location
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    nfs_mount_path: /arjun/nfs
+
+  tasks:
+    - name: Find SAR files
+      find:
+        paths: arjun/var/log/sa/
+        patterns: "sar*"
+        recurse: no
+      register: sar_files
+
+    - name: Copy SAR files
+      copy:
+        src: "{{ item.path }}"
+        dest: "{{ nfs_mount_path }}/{{ inventory_hostname }}/{{ item.path | basename }}"
+      with_items: "{{ sar_files.files }}"

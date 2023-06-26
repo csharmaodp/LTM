@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+  - name: 'collect the files which are starts with sar and store in txt'
+    shell: ls /var/log/sa/sa?? | xargs -i sar -A -f {}  >  /tmp/sar_$(uname -n).txt 
+    register: sar_files
+
+  - name: 'debug the sar files'
+    debug:
+      var: sar_files

@@ -1,0 +1,46 @@
+---
+- name: Copy SAR files to NFS location
+  hosts: webservers
+  gather_facts: false
+  vars:
+    nfs_mount_point: arjun/mount/path
+    sar_files_path: arjun/var/log/sa/sar*
+
+  tasks:
+    - name: Create destination directory on NFS
+      file:
+        path: "{{ nfs_mount_point }}"
+        state: directory
+      delegate_to: targetlocation
+
+    # - name: Find SAR files
+    #   find:
+    #     paths: "{{ sar_files_path }}"
+    #     patterns: "sar*"
+    #     recurse: no
+    #   register: sar_files
+
+    - name: Find SAR files
+      ansible.builtin.fetch:
+        src: "{{ sar_files_path }}"
+        dest: arjun/mount/path-{{ inventory_hostname }}
+      register: sar_files
+   
+    - name: Gather hostname
+      command: hostname
+      register: hostname_output
+
+    # - name: debug
+    #   debug:
+        # var: hostname_output
+        
+    - name: debug
+      debug:
+        var: sar_files
+
+    - name: Copy SAR files to NFS location
+      copy:
+        src: "{{ item.path }}"
+        dest: "{{ nfs_mount_point }}/{{ item.path | basename }}_{{hostname_output.stdout}}"
+        remote_src: true
+      loop: "{{ sar_files.files }}"

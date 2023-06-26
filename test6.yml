@@ -1,0 +1,34 @@
+---
+- name: Copy SAR files to NFS location
+  hosts: webservers
+  gather_facts: false
+
+  vars:
+    nfs_mount_point: arjun/mount/path
+    sar_files_path: /tmp/
+
+  tasks:
+    - name: Create destination directory on NFS
+      file:
+        path: "{{ nfs_mount_point }}"
+        state: directory
+
+    - name: Collect file names
+      shell: 'ls arjun/var/log/sa/sa* > /tmp/sar_$(uname -n).txt'
+      
+    - name: Find SAR files
+      find:
+        paths: "{{ sar_files_path }}"
+        patterns: "sar*.txt"
+        recurse: no
+      register: sar_files
+        
+    - name: Copy SAR files to NFS location
+      copy:
+        src: "{{ item.path }}"
+        dest: "{{ nfs_mount_point }}/{{ item.path | basename }}"
+        remote_src: true
+      loop: "{{ sar_files.files }}"
+
+    - name: copy to another servers
+      shell: "scp /tmp/sar*.txt root@13.59.31.88:/root/arjun/mount"

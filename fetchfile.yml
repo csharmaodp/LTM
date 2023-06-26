@@ -1,0 +1,27 @@
+---
+- name: Copy SAR files to NFS location
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    nfs_mount_point: /h
+    sar_files_path: /var/log/sa
+
+  tasks:
+    - name: Create destination directory on NFS
+      file:
+        path: "{{ nfs_mount_point }}"
+        state: directory
+
+    - name: Gather hostname
+      command: hostname
+      register: hostname_output
+
+    - name: Copy SAR files to NFS location
+      copy:
+        src: "{{ sar_files_path }}/sar{{ ansible_date_time.date }}"
+        dest: "{{ nfs_mount_point }}/{{ inventory_hostname }}_{{ hostname_output.stdout }}_sar{{ ansible_date_time.date }}"
+        remote_src: yes
+
+       
+

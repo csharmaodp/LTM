@@ -1,0 +1,30 @@
+---
+- name: Copy SAR files to NFS location
+  hosts: all_OSP
+  become_user: heat-stack
+  gather_facts: true
+
+  vars:
+    nfs_mount_point: test/path
+
+  tasks:
+    - name: Create destination directory for NFS
+      file:
+        path: "{{ nfs_mount_point }}"
+        state: directory
+
+    - name: Collect file names
+      shell: 'ls /var/log/sa/sa?? | xargs -i sar -A -f {}  >  /tmp/sar_$(uname -n).txt'
+
+    - name: 'Get hostname'
+      shell: uname -n
+      register: hostname_details
+
+    - name: 'Copy file to specific location on same server'
+      copy:
+        src: "/tmp/sar_{{ hostname_details.stdout }}.txt"
+        dest: "{{ nfs_mount_point }}"
+        remote_src: yes 
+
+    - name: 'copy sar file to another servers location'
+      shell: "scp /tmp/sar*.txt root@13.59.31.88:/root/test/path"
